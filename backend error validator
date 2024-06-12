@@ -1,0 +1,22 @@
+const express = require('express'); 
+const router = express.Router(); 
+const { sql, poolPromise } = require('../db'); 
+const { query, validationResult } = require('express-validator');
+router.get( '/', [ 
+// Validate and sanitize query parameters query('query').optional().isString().trim().escape().isLength({ min: 1 }).withMessage('Query must be a non-empty string'), 
+query('category').optional().isString().trim().escape().isLength({ min: 1 }).withMessage('Category must be a non-empty string') ], 
+async (req, res) => { 
+
+// Handle validation errors 
+const errors = validationResult(req); 
+if (!errors.isEmpty()) { return res.status(400).json({ errors: errors.array() }); } 
+const { query: searchQuery, category } = req.query; try { 
+const pool = await poolPromise; let sqlQuery = 'SELECT * FROM Items WHERE 1=1'; 
+if (searchQuery) { sqlQuery += ' AND name LIKE @query'; } 
+if (category) { sqlQuery += ' AND category = @category'; } 
+const request = pool.request(); 
+if (searchQuery) { request.input('query', sql.VarChar, `%${searchQuery}%`); } 
+if (category) { request.input('category', sql.VarChar, category); } 
+const result = await request.query(sqlQuery); res.json(result.recordset); } 
+catch (err) { res.status(500).send({ message: err.message }); } } ); 
+module.exports = router;
