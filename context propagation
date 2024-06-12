@@ -1,0 +1,27 @@
+
+// Context propagation
+// In microservices, where requests can traverse multiple services, propagating context information is essential for tracking and 
+// understanding the flow of requests. Contextual information, often in the form of headers or tokens, 
+// allows you to correlate logs across different microservices.
+// Here is an example of context propagation. In a Node.js environment with Express.js, you can use middleware to propagate context information:
+// Middleware to add context to requests
+app.use((req, res, next) => {
+    // Add a unique request ID to the request
+    req.requestId = generateRequestId();
+    // Log the start of the request
+    logger.info(`[${new Date()}] Start processing request ${req.requestId}`);
+    next();
+  });
+  // Middleware for logging requests
+  app.use((req, res, next) => {
+    // Log relevant information with the request context
+    logger.info(`[${new Date()}] ${req.method} ${req.url} - Request ID: ${req.requestId}`);
+    next();
+  });
+  // Other middleware and routes
+  // Error handling middleware
+  app.use((err, req, res, next) => {
+    // Log errors with the request context
+    logger.error(`[${new Date()}] Error processing request ${req.requestId}: ${err.message}`, err);
+    res.status(500).send('Something went wrong!');
+  });
