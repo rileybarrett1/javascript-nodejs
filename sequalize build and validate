@@ -1,0 +1,35 @@
+To validate fields with sequelize and get significant error saying where is a problem you have to use validate: {} property inside model --
+definition with rule you want to check against.
+
+Regarding to documentation:
+
+Model validators allow you to specify format/content/inheritance validations for each attribute of the model. Validations are automatically run on create, update and save. You can also call validate() to manually validate an instance.
+
+Validate the attributes of this instance according to validation rules set in the model definition.
+
+Example:
+
+module.exports = (sequelize, DataTypes) => {
+  const test = sequelize.define(
+    'test',
+    {
+      testDate: {
+        allowNull: false,
+        type: DataTypes.Date,
+        defaultValue: DataTypes.NOW,
+        validate: {
+          isDate: true,
+        },
+      }
+    },
+    {
+      freezeTableName: true,
+      timestamps: false,
+    }
+  )
+}
+Manual validation:
+
+const item = await test.build(object)
+const validatedItem = await item.validate()
+Result if do not pass validation: enter image description here
