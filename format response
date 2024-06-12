@@ -1,0 +1,19 @@
+const formatResponse = require('../middleware/response-formatter'); 
+
+function getPosts(req, res) { 
+const page = parseInt(req.query.page) || 1;
+const limit = parseInt(req.query.limit) || 10; 
+const startIndex = (page - 1) * limit; 
+const endIndex = page * limit; 
+const resultPosts = posts.slice(startIndex, endIndex); 
+const pagination = { totalRecords: posts.length, currentPage: page, totalPages: Math.ceil(posts.length / limit), 
+nextPage: endIndex < posts.length ? page + 1 : null, prevPage: startIndex > 0 ? page - 1 : null }; 
+const meta = { totalNumber: resultPosts.length, links: [{ rel: "self", href: `/api/v1/posts?page=${page}&limit=${limit}`, method: "GET" }] }; 
+const confirmationMessage = { createdDateTime: new Date().toISOString(), protocolStatusCode: "200", codeValue: "200" }; 
+const response = formatResponse(meta, resultPosts, confirmationMessage, pagination); res.status(200).json(response); } 
+function createPost(req, res) { 
+const newPost = { id: posts.length + 1, title: req.body.title, content: req.body.content, createdDateTime: new Date().toISOString() };
+posts.push(newPost); const meta = { message: "Post created successfully" }; 
+const confirmationMessage = { createdDateTime: new Date().toISOString(), protocolStatusCode: "201", codeValue: "201" };
+const response = formatResponse(meta, newPost, confirmationMessage); res.status(201).json(response); } 
+module.exports = { getPosts, createPost };
