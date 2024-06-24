@@ -1,0 +1,32 @@
+const { Op } = require("sequelize");
+function getPagination(req) {
+  // Parse the offset and limit from query parameters
+  const page = parseInt(req.query.offset) || 1;
+  // Default to page 1 if not provided
+  const limit = parseInt(req.query.limit) || 10;
+  // Default to 10 items per page if not provided
+  const offset = (page - 1) * limit;
+  // Sort field and order
+  const sortField = req.query.sortField || "id";
+  // Corrected syntax for getting sortField
+  const sortOrder = req.query.sortOrder || "ASC";
+  // Corrected variable name
+  // Create filter object and remove pagination and sorting keys from query parameters
+  const filter = { ...req.query };
+  delete filter.offset;
+  delete filter.limit;
+  delete filter.sortField;
+  delete filter.sortOrder;
+  // Modify filter for SQL LIKE operation if filter value is a string
+  for (const key in filter) {
+    if (typeof filter[key] === "string") {
+      filter[key] = {
+        [Op.like]: `${filter[key]}%`,
+        // Use ^ to anchor the pattern at the start
+      };
+    }
+  }
+  // Attach pagination, sorting, and filter information to the request object
+  return { limit, offset, sortField, sortOrder, filter };
+}
+module.exports = { getPagination };
