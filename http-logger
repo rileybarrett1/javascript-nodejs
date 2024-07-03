@@ -1,0 +1,14 @@
+const logger = require("../utils/logger");
+
+// @desc  Logs request to console
+function httpLogger(req, res, next) {
+  logger.log({
+    level: "http",
+    message: `${req.method} ${req.protocol}://${req.get("host")}${
+      req.originalUrl
+    }`,
+  });
+  next();
+}
+
+module.exports = httpLogger;
