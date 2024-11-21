@@ -1,33 +1,41 @@
-"use strict";
-
 document.addEventListener("DOMContentLoaded", () => {
-    const images = document.querySelectorAll("#image_rollovers img");
-    const preloadedImages = [];
 
-    // Preload rollover images based on img ID attributes
+  const images = document.querySelectorAll("#image_rollovers img");
 
+  let currentIndex =0;
+  let id = null;
 
-    // Set up rollover effect with hover events
-    for (let image of images) {
-        const oldURL = image.src;
-        const newURL = image.id;
-        const img = new Image()
-        
-        img.src = newURL;  // Preload rollover image by setting src
-        preloadedImages.push(img);
-        image.addEventListener("mouseover", () => {
-            image.src = newURL;
-        });
-        image.addEventListener("mouseout", () => {
-            image.src = oldURL;
-        });
+  // Initially show only the first image
+  images.forEach((image,index) => {
+    image.style.display = index === 0 ? "block" : "none";
+  })
 
-        // Timer to change image after 1 second, and revert after 2 seconds
-        setTimeout(() => {
-            image.src = newURL;
-            setTimeout(() => {
-                image.src = oldURL;
-            }, 1000); // Revert to original image after 2 seconds from page load
-        }, 1000); // Change image to rollover after 1 second from page load
-    }
+  // Function to start cycling through images
+  const startFlipping = () => {
+    id = setInterval(() =>{
+      images[currentIndex].style.display = "none";
+      currentIndex = (currentIndex + 1) % 2;
+      images[currentIndex].style.display ="block";
+    })
+  };
+
+  // Function to stop cycling through images
+  const stopFlipping = () => {
+    clearInterval(id);
+    id = null;
+  };
+
+  const startbutton = document.getElementById("start");
+  const stopbutton = document.getElementById("stop");
+  startbutton.addEventListener("click", () => {
+    startFlipping()
+    startbutton.disabled = true;
+    stopbutton.disabled = false;
+  });
+
+  stopbutton.addEventListener("click", () => {
+    stopFlipping();
+    startbutton.disabled = false;
+    stopbutton.disabled = true;
+  }); 
 });
